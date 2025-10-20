@@ -109,8 +109,7 @@ export default function RecipeReviewCard() {
                 This is sample expandable content for post ID {info.id}.
               </Typography>
               <Typography paragraph>
-                The goal is to demonstrate expandable cards using React and
-                Material-UI.
+                this is a picture of a car.
               </Typography>
             </CardContent>
           </Collapse>
