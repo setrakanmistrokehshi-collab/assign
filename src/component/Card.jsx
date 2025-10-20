@@ -15,7 +15,7 @@ import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import axios from "axios";
-import image from "../assets/image.jpg"
+import image from "../assets/white1.jpg"
 
 // Expand button styling
 const ExpandMore = styled((props) => {
