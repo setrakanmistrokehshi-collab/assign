@@ -12,6 +12,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
+import {Link} from "react-router-dom"
 
 const pages = ['Products', 'Pricing', 'Blog'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -55,6 +56,7 @@ function ResponsiveAppBar() {
               textDecoration: 'none',
             }}
           >
+            
             LOGO
           </Typography>
 
@@ -112,15 +114,21 @@ function ResponsiveAppBar() {
             LOGO
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
+           {/* {pages.map((page) => (
               <Button
                 key={page}
                 onClick={handleCloseNavMenu}
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
-                {page}
+               {page} 
               </Button>
-            ))}
+            ))}*/}
+            <div >
+               <Link  style={{margin:"10px", textDecoration:"none", color:"white"}}>Products</Link>
+               <Link  style={{margin:"10px", textDecoration:"none", color:"white"}}>Pricing</Link>
+               <Link to ="/login"  style={{margin:"10px", textDecoration:"none", color:"white"}}>Login</Link>
+                
+            </div>
           </Box>
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
@@ -149,6 +157,7 @@ function ResponsiveAppBar() {
                   <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
                 </MenuItem>
               ))}
+              
             </Menu>
           </Box>
         </Toolbar>

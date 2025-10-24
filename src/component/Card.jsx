@@ -41,7 +41,7 @@ export default function RecipeReviewCard() {
     axios
       .get("https://jsonplaceholder.typicode.com/posts")
       .then((res) => {
-        setData(res.data.slice(0,9)); //Get first 9 items
+        setData(res.data.slice(0,4)); //Get first  different 9 items
         console.log(res.data);
       })
       .catch((err) => {

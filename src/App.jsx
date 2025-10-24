@@ -1,15 +1,18 @@
 import React from 'react'
-import Nav from './component/Nav'
-import Card from "./component/Card"
-import Container from '@mui/material/Container'
-
+import LoginPage from "./screen/LoginPage"
+import Home  from './screen/Home'
+import {Routes,Route} from "react-router-dom"
+import RegisterationForm from "./screen/Registeration"
 const App = () => {
   return (
     <div>
-      <Nav/>
-      <Container/>
-      <Card/>
+ <Routes> 
+  
+  <Route path='/' element={<Home/>} />
+   <Route path='/login' element={ <LoginPage />} />
+    <Route path='register' element={ <RegisterationForm />} /> 
       
+  </Routes>
     </div>
   )
 }
