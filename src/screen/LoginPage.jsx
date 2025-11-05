@@ -29,7 +29,7 @@ const Login = () => {
 try { 
 
    const res = await
-   axios.post('https://fullstack-student-backend.onrender.com/api/auth/login',payload)
+   axios.post('https://students-learning-api.onrender.com/api/auth/login',payload)
    
    console.log(res)
    navigate('/')

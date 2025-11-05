@@ -17,11 +17,12 @@ import axios from "axios";
 import { Delete } from "@mui/icons-material";
 
 const UsersList = () => {
+  
   const navigate = useNavigate();
   const [Users, setUsers] = useState([])
   const [Loading, setLoading] = useState(true)
   const [Error, setError] = useState('')
-  const api = 'https://fullstack-student-backend.onrender.com/api/auth'
+  const api = 'https://students-learning-api.onrender.com/api/auth/'
   useEffect(() =>{
     const fetchUsers = async ( )=>{
         try { 
@@ -101,7 +102,7 @@ const UsersList = () => {
                         variant="contained"
                         color="primary"
                         size="small"
-                        onClick={() => navigate(`/users/${user._id}`)}
+                        onClick={() => navigate(`/User/${user._id}`)}
                       >
                         View
                       </Button>
@@ -109,7 +110,7 @@ const UsersList = () => {
                         variant="contained"
                         color="success"
                         size="small"
-                        onClick={() => navigate(`/users/edit/${user._id}`)}
+                        onClick={() => navigate(`/User/edit/${user._id}`)}
                       >
                         Edit
                       </Button>
@@ -117,7 +118,7 @@ const UsersList = () => {
                         variant="contained"
                         color="error"
                         size="small"
-                        onClick={() => deleteUser(User._id)}
+                        onClick={() => deleteUser(user._id)}
                       >
                         Delete
                       </Button>

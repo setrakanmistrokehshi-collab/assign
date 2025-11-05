@@ -20,7 +20,7 @@ const RegistrationForm = () => {
     const [address, setAddress] = useState('')
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(fa);
     const [error, setError] = useState('');
     const formData ={email, password, phoneNumber, address, firstName, lastName}
     const Register = async (event) => {
@@ -28,7 +28,7 @@ const RegistrationForm = () => {
     setLoading(true);
     try {
         const data = await
-         axios.post("https://fullstack-student-backend.onrender.com/api/auth/", formData )
+         axios.post(`https://students-learning-api.onrender.com/api/auth`, formData )
         console.log(data);
         navigate('/login')
 

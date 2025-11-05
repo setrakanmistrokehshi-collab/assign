@@ -128,6 +128,7 @@ function ResponsiveAppBar() {
                <Link  style={{margin:"10px", textDecoration:"none", color:"white"}}>Pricing</Link>
                <Link to ="/login"  style={{margin:"10px", textDecoration:"none", color:"white"}}>Login</Link>
                <Link to ="/UserList"  style={{margin:"10px", textDecoration:"none", color:"white"}}>UserList</Link>
+               <Link to ="/GetUser"  style={{margin:"10px", textDecoration:"none", color:"white"}}>GetUser</Link>
                 
             </div>
           </Box>
