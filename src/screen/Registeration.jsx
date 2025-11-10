@@ -28,7 +28,7 @@ const RegistrationForm = () => {
     setLoading(true);
     try {
         const data = await
-         axios.post(`${import.meta.env.VITE_API_URL}/api/auth`, formData )
+         axios.post(`${import.meta.env.VITE_FRONTEND_URL}/api/auth`, formData )
         console.log(data);
         navigate('/login')
 
