@@ -28,7 +28,7 @@ const RegistrationForm = () => {
     setLoading(true);
     try {
         const data = await
-         axios.post(`https://students-learning-api.onrender.com/api/auth`, formData )
+         axios.post(`${import.meta.env.VITE_API_URL}/api/auth`, formData )
         console.log(data);
         navigate('/login')
 

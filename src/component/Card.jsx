@@ -39,7 +39,7 @@ export default function RecipeReviewCard() {
 
   useEffect(() => {
     axios
-      .get("https://jsonplaceholder.typicode.com/posts")
+      .get(`${import.meta.env.BASE_API_URL}/posts`)
       .then((res) => {
         setData(res.data.slice(0,4)); //Get first  different 9 items
         console.log(res.data);

@@ -22,7 +22,7 @@ let fetchUser = async ()=>{
    try { 
         
             const res = await
-             axios.get(`https://students-learning-api.onrender.com/api/auth/${id}`)
+             axios.get(`${import.meta.env.VITE_FRONTEND_URL}/api/auth/${id}`)
             setUser(res.data)
             console.log(res.data)
 

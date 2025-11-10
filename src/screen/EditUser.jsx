@@ -30,7 +30,7 @@ const handleEdit = async(event) => {
   setLoading(true)
   try {
     const res = await
-    axios.put(`https://students-learning-api.onrender.com/api/auth/update${id}`,payload)
+    axios.put(`${import.meta.env.VITE_FRONTEND_URL}/api/auth/update${id}`,payload)
   console.log(Response)
   setLoading(false)
   navigate('/User')
