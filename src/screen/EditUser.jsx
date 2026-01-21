@@ -97,8 +97,9 @@ const handleEdit = async(event) => {
           />
           <TextField label="Email" 
           name="email" 
+          fullWidth margin="normal"  value={email} 
+          onChange={(event) => setEmail (event.target.value)}/>
 
-          fullWidth margin="normal" />
 
           <Button
             type="submit"

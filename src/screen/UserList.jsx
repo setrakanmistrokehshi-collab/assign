@@ -21,8 +21,9 @@ const UsersList = () => {
   const navigate = useNavigate();
   const [Users, setUsers] = useState([])
   const [Loading, setLoading] = useState(true)
-  const [Error, setError] = useState('')
-  const api = 'https://students-learning-api.onrender.com/api/auth/'
+  const [Error, setError] = useState()
+  const api = (`${import.meta.env.VITE_FRONTEND_URL}/api/auth`)
+
   useEffect(() =>{
     const fetchUsers = async ( )=>{
         try { 

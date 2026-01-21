@@ -31,10 +31,10 @@ let fetchUser = async ()=>{
     setError(err)
 
 }  finally {
-    setLoading(false)
+    setLoading(false);
  }
   
-     }
+     };
      fetchUser();
     }, [id]);
 if (loading) return <CircularProgress/>

@@ -20,7 +20,7 @@ const RegistrationForm = () => {
     const [address, setAddress] = useState('')
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
-    const [loading, setLoading] = useState(fa);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const formData ={email, password, phoneNumber, address, firstName, lastName}
     const Register = async (event) => {
