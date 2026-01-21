@@ -13,8 +13,8 @@ const App = () => {
   
   <Route path='/' element={<Home/>} />
    <Route path='/login' element={ <LoginPage />} />
-    <Route path='register' element={ <RegisterationForm />} />
-    <Route path='UserList' element={ <UsersList />} />
+    <Route path='/register' element={ <RegisterationForm />} />
+    <Route path='/UserList' element={ <UsersList />} />
     <Route path='/User/:id' element={ <GetUser />} />
     <Route path='/User/edit/:id' element={ <EditUser />} />
     
