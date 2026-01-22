@@ -51,9 +51,9 @@ export default function RecipeReviewCard() {
 
   useEffect(() => {
     axios
-      .get(`${import.meta.env.VITE_FRONTEND_URL}/posts`)
+      .get(`${import.meta.env.VITE_API_URL}/posts`)
       .then((res) => {
-        setData(res.data.slice(0, 4));
+        setData(res.data.slice(0, 5));
       })
       .catch((err) => {
         console.error("Error fetching data", err);
