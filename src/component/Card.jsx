@@ -15,7 +15,10 @@ import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import axios from "axios";
-import image from "../assets/white1.jpg"
+import image from "../assets/white1.jpg";
+
+import AOS from "aos";
+import "aos/dist/aos.css"; // ✅ REQUIRED
 
 // Expand button styling
 const ExpandMore = styled((props) => {
@@ -33,16 +36,24 @@ export default function RecipeReviewCard() {
   const [expanded, setExpanded] = useState(false);
   const [data, setData] = useState([]);
 
+  // ✅ AOS must be initialized INSIDE component
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true,
+      offset: 100,
+    });
+  }, []);
+
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
   useEffect(() => {
     axios
-      .get(`${import.meta.env.BASE_API_URL}/posts`)
+      .get(`${import.meta.env.VITE_FRONTEND_URL}/posts`)
       .then((res) => {
-        setData(res.data.slice(0,4)); //Get first  different 9 items
-        console.log(res.data);
+        setData(res.data.slice(0, 4));
       })
       .catch((err) => {
         console.error("Error fetching data", err);
@@ -60,56 +71,51 @@ export default function RecipeReviewCard() {
       }}
     >
       {data.map((info) => (
-        <Card key={info.id} sx={{ maxWidth: 345 }}>
+        <Card key={info.id} sx={{ maxWidth: 345 }} data-aos="fade-up">
           <CardHeader
             avatar={
-              <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
+              <Avatar sx={{ bgcolor: red[500] }}>
                 {info.title.charAt(0).toUpperCase()}
               </Avatar>
             }
             action={
-              <IconButton aria-label="settings">
+              <IconButton>
                 <MoreVertIcon />
               </IconButton>
             }
             title={info.title}
             subheader="JSONPlaceholder Data"
           />
-          <CardMedia
-            component="img"
-            height="194"
-            image={image}
-            alt="Paella dish"
-          />
+
+          <CardMedia component="img" height="194" image={image} />
+
           <CardContent>
             <Typography variant="body2" color="text.secondary">
               {info.body}
             </Typography>
           </CardContent>
+
           <CardActions disableSpacing>
-            <IconButton aria-label="add to favorites">
+            <IconButton>
               <FavoriteIcon />
             </IconButton>
-            <IconButton aria-label="share">
+            <IconButton>
               <ShareIcon />
             </IconButton>
             <ExpandMore
               expand={expanded}
               onClick={handleExpandClick}
               aria-expanded={expanded}
-              aria-label="show more"
             >
               <ExpandMoreIcon />
             </ExpandMore>
           </CardActions>
+
           <Collapse in={expanded} timeout="auto" unmountOnExit>
             <CardContent>
               <Typography paragraph>More Info:</Typography>
               <Typography paragraph>
                 This is sample expandable content for post ID {info.id}.
-              </Typography>
-              <Typography paragraph>
-                this is a picture of a car.
               </Typography>
             </CardContent>
           </Collapse>
