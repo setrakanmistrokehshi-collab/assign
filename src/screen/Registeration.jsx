@@ -28,9 +28,9 @@ const RegistrationForm = () => {
     setLoading(true);
     try {
         const data = await
-         axios.post(`${import.meta.env.VITE_FRONTEND_URL}/api/auth`, formData )
+         axios.post(`${import.meta.env.VITE_FRONTEND_URL}/api/user/register`, formData )
         console.log(data);
-        navigate('/login')
+        navigate('/')
 
     }  catch (error) {
        setError(error?.response?.data?.message || error?.response?.data?.error || "Registration failed");
