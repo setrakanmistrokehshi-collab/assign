@@ -1,6 +1,6 @@
 import React from 'react'
 import Nav from "../component/Nav"
-import Card from "../component/Card"
+import Card from "../component/Product"
 
 const Home = () => {
   return (

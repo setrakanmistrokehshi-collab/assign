@@ -32,7 +32,7 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-export default function RecipeReviewCard() {
+export default function GetProduct() {
   const [expanded, setExpanded] = useState(false);
   const [data, setData] = useState([]);
 
@@ -51,7 +51,7 @@ export default function RecipeReviewCard() {
 
   useEffect(() => {
     axios
-      .get(`${import.meta.env.VITE_API_URL}/posts`)
+      .get(`${"https://classwork-backend-1.onrender.com"}/api/get`)
       .then((res) => {
         setData(res.data.slice(0, 5));
       })

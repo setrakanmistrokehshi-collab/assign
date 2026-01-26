@@ -1,263 +1,401 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Box,
-  TextField,
   Button,
+  TextField,
   Typography,
   Paper,
+  MenuItem,
+  InputAdornment,
+  IconButton,
+  Avatar,
   CircularProgress,
-  Alert,
+  Stack,
 } from "@mui/material";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import axios from "axios";
-import { motion } from "framer-motion";
-import { useNavigate, Link } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import imageCompression from "browser-image-compression";
+import { Link, useNavigate } from "react-router-dom";
 
-// ────────────────────────────────────────────────
-//               Validation Schema
-// ────────────────────────────────────────────────
-const registerSchema = yup.object().shape({
-  firstName: yup
-    .string()
-    .trim()
-    .required("First name is required")
-    .min(2, "First name must be at least 2 characters")
-    .max(50, "First name is too long"),
+//const genders = ["Male", "Female"];
+//const maritalStatuses = ["Single", "Married", "Divorced", "Widowed"];
+//const relationshipTypes = [
+  //"friendship",
+ // "dating",
+ // "marriage",
+ // "Online Dating ",
+  //"Males Friends ",
+ // "Female friends ",
+ // "Chat mate ",
+ // "Friends with Benefits  ",
+ // "Sex chat  ",
+  // "Gay",
+  // "Lasbian",
+  //"Sugar Daddy",
+  //"Sugar Mommy",
+  //"Casual Relationship",
+  //"Long-term Relationship",
+  //"Open Relationship",
+//];
 
-  lastName: yup
-    .string()
-    .trim()
-    .required("Last name is required")
-    .min(2, "Last name must be at least 2 characters")
-    .max(50, "Last name is too long"),
-
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("Please enter a valid email address")
-    .trim(),
-
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters")
-    .matches(/[a-z]/, "Must contain at least one lowercase letter")
-    .matches(/[A-Z]/, "Must contain at least one uppercase letter")
-    .matches(/[0-9]/, "Must contain at least one number")
-    .matches(/[^A-Za-z0-9]/, "Must contain at least one special character"),
-
-  // Optional: add password confirmation
-  // confirmPassword: yup
-  //   .string()
-  //   .oneOf([yup.ref("password")], "Passwords must match")
-  //   .required("Please confirm your password"),
-
-  phoneNumber: yup
-    .string()
-    .trim()
-    .matches(/^\+?\d{9,15}$/, "Please enter a valid phone number (9–15 digits)"),
-
-  address: yup.string().trim().max(200, "Address is too long"),
-});
-
-const RegistrationForm = () => {
-  const navigate = useNavigate();
-  const [apiError, setApiError] = useState("");
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-  } = useForm({
-    resolver: yupResolver(registerSchema),
-    mode: "onChange", // better real-time feedback
+const Registeration = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    //age: "",
+    //gender: "",
+   // location: "",
+    username: "",
+    email: "",
+    phoneNumber: "",
+    password: "",
+    address: "",
   });
+  const [photoPreview, setPhotoPreview] = useState("");
+  const [photoFile, setPhotoFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
-  const onSubmit = async (data) => {
-    setApiError("");
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/register`,
-        data,
+      const compressedFile = await imageCompression(file, {
+        maxSizeMB: 0.1,
+        maxWidthOrHeight: 300,
+        useWebWorker: true,
+      });
+      setPhotoFile(compressedFile);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      setMessage("Image compression failed. Please try another image.");
+    }
+  };
+
+  const handleShowPassword = () => setShowPassword((show) => !show);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage("");
+    // Check if photoFile is present
+    if (!photoFile) {
+      setLoading(false);
+      setMessage("Checkmate! Please upload a profile picture to continue.");
+      alert("Checkmate! Please upload a profile picture to continue.");
+      return;
+    }
+    try {
+      const formData = new FormData();
+      Object.entries(form).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      formData.append("photo", photoFile);
+
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/register`,
+        formData,
         {
-          headers: { "Content-Type": "application/json" },
-          timeout: 1000, // prevent hanging forever
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
-      // Optional: show success message / auto-login
-      // alert("Registration successful! Please log in.");
-      reset(); // clear form
-      navigate("/login", { replace: true });
-
+      if ((res.status === 201 || res.status === 200) && res.data.token) {
+        const userId = res.data.member?._id;
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("userId", userId);
+        localStorage.setItem("email", res.data.member?.email);
+        localStorage.setItem("username", res.data.member?.username || "");
+        setMessage("Registration successful! Redirecting...");
+        setForm({
+          name: "",
+         // age: "",
+          //gender: "",
+         // location: "",
+          //occupation: "",
+          //maritalStatus: "",
+         // relationshipType: "",
+          username: "",
+          email: "",
+          phoneNumber: "",
+          password: "",
+          address: "",
+        });
+        setPhotoPreview("");
+        setPhotoFile(null);
+        navigate(`/members/${userId}`, { replace: true });
+      } else {
+        setMessage(res.data.message || "Registration failed.");
+      }
     } catch (err) {
       console.error("Registration error:", err);
 
-      let message = "Registration failed. Please try again later.";
+      let errorMsg =
+        (err.response?.data?.message &&
+        typeof err.response.data.message === "string"
+          ? err.response.data.message
+          : JSON.stringify(
+              err.response?.data?.message || err.response?.data || err.message
+            )) || "Network error. Please try again.";
 
-      if (err.response) {
-        // Server responded with error (4xx, 5xx)
-        const { status, data } = err.response;
-
-        if (status === 400) {
-          message = data?.message || "Invalid information provided.";
-        } else if (status === 409) {
-          message = data?.message || "Email is already registered.";
-        } else if (status === 429) {
-          message = "Too many attempts. Please try again later.";
-        } else if (status >= 500) {
-          message = "Server error. Please try again later.";
-        } else {
-          message = data?.message || `Error ${status}`;
-        }
-      } else if (err.request) {
-        // No response received (network issue, CORS, timeout...)
-        message = "Cannot connect to the server. Check your internet connection.";
-      }
-
-      setApiError(message);
+      setMessage(errorMsg);
+      setLoading(false);
     }
   };
 
   return (
     <Box
+      minHeight="100vh"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
       sx={{
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "linear-gradient(135deg, #1565c0, #42a5f5)",
-        p: 2,
+        background: `
+      linear-gradient(135deg, red 0%, #a78bfa 50%, #green 100%)
+    `,
+        py: 6,
+        px: { xs: 1, sm: 2, md: 4 },
       }}
     >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.92, y: 30 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+      <Paper
+        elevation={12}
+        sx={{
+          p: 4,
+          borderRadius: 5,
+          minWidth: 370,
+          maxWidth: 440,
+          opacity: 0.98,
+          background: "rgba(255,255,255,0.10)",
+          boxShadow: "0 8px 32px 0 rgba(31,38,135,0.25)",
+          backdropFilter: "blur(8px)",
+        }}
       >
-        <Paper
-          elevation={6}
-          sx={{
-            p: { xs: 3, sm: 4 },
-            width: { xs: "100%", sm: 420 },
-            borderRadius: 4,
-            maxWidth: 460,
-          }}
-        >
-          <Typography variant="h5" component="h1" textAlign="center" mb={3}>
-            Create Account
+        <Box display="flex" alignItems="center" justifyContent="center" mb={2}>
+          <FavoriteIcon sx={{ color: "#a78bfa", mr: 1, fontSize: 32 }} />
+          <Typography variant="h5" fontWeight="bold" color="#a78bfa">
+            Create Your Account
           </Typography>
-
-          {apiError && (
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {apiError}
-            </Alert>
-          )}
-
-          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        </Box>
+        {/* Signup Form */}
+        <form onSubmit={handleSubmit}>
+          <Stack spacing={2}>
+            <Box display="flex" flexDirection="column" alignItems="center">
+              <Avatar
+                src={photoPreview}
+                sx={{
+                  width: 72,
+                  height: 72,
+                  mb: 1,
+                  bgcolor: "#a78bfa",
+                  border: "3px solid #fff",
+                  boxShadow: "0 2px 8px #a78bfa",
+                }}
+              />
+              <Button
+                variant="outlined"
+                component="label"
+                sx={{
+                  mb: 1,
+                  borderColor: "#a78bfa",
+                  color: "#a78bfa",
+                  fontWeight: "bold",
+                  letterSpacing: 1,
+                }}
+              >
+                Upload Photo
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={handlePhotoChange}
+                />
+              </Button>
+            </Box>
+            {/* ...existing form fields... */}
             <TextField
-              label="First Name"
+              label="Name"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
               fullWidth
-              {...register("firstName")}
-              error={!!errors.firstName}
-              helperText={errors.firstName?.message}
-              sx={{ mb: 2.5 }}
+              required
             />
-
+            {/* <TextField
+              label="Age"
+              name="age"
+              type="number"
+              value={form.age}
+              onChange={handleChange}
+              fullWidth
+              required
+              inputProps={{ min: 18, max: 100 }}
+            />
             <TextField
-              label="Last Name"
+              select
+              label="Gender"
+              name="gender"
+              value={form.gender}
+              onChange={handleChange}
               fullWidth
-              {...register("lastName")}
-              error={!!errors.lastName}
-              helperText={errors.lastName?.message}
-              sx={{ mb: 2.5 }}
+              required
+            >
+              {genders.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              label="Location"
+              name="location"
+              value={form.location}
+              onChange={handleChange}
+              fullWidth
+              required
             />
-
+            <TextField
+              label="Occupation"
+              name="occupation"
+              value={form.occupation}
+              onChange={handleChange}
+              fullWidth
+              required
+            />
+            <TextField
+              label="Describe your kind of Man/Woman?"
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              fullWidth
+              required
+            />
+            <TextField
+              select
+              label="Marital Status"
+              name="maritalStatus"
+              value={form.maritalStatus}
+              onChange={handleChange}
+              fullWidth
+              required
+            >
+              {maritalStatuses.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select
+              label="Relationship Type"
+              name="relationshipType"
+              value={form.relationshipType}
+              onChange={handleChange}
+              fullWidth
+              required
+            >
+              {relationshipTypes.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField> */}
+            <TextField
+              label="Username"
+              name="username"
+              value={form.username}
+              onChange={handleChange}
+              fullWidth
+              required
+            />
             <TextField
               label="Email"
+              name="email"
               type="email"
+              value={form.email}
+              onChange={handleChange}
               fullWidth
-              {...register("email")}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-              sx={{ mb: 2.5 }}
+              required
             />
-
+            <TextField
+              label="Phone Number"
+              name="phoneNumber"
+              value={form.phoneNumber}
+              onChange={handleChange}
+              fullWidth
+              required
+            />
             <TextField
               label="Password"
-              type="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              value={form.password}
+              onChange={handleChange}
               fullWidth
-              {...register("password")}
-              error={!!errors.password}
-              helperText={errors.password?.message}
-              sx={{ mb: 2.5 }}
-            />
-
-            {/* Uncomment if you want password confirmation */}
-            { <TextField
-              label="Confirm Password"
-              type="password"
-              fullWidth
-              {...register("confirmPassword")}
-              error={!!errors.confirmPassword}
-              helperText={errors.confirmPassword?.message}
-              sx={{ mb: 2.5 }}
-            /> }
-
-            <TextField
-              label="Phone Number (optional)"
-              type="tel"
-              fullWidth
-              {...register("phoneNumber")}
-              error={!!errors.phoneNumber}
-              helperText={errors.phoneNumber?.message || "e.g. +2348012345678"}
-              sx={{ mb: 2.5 }}
-            />
-
-            <TextField
-              label="Address (optional)"
-              fullWidth
-              {...register("address")}
-              error={!!errors.address}
-              helperText={errors.address?.message}
-              multiline
-              rows={2}
-              sx={{ mb: 3 }}
+              required
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={handleShowPassword} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
 
             <Button
               type="submit"
-              fullWidth
-              disabled={isSubmitting}
               variant="contained"
-              size="large"
-              sx={{ py: 1.5, textTransform: "none", fontSize: "1.1rem" }}
+              fullWidth
+              disabled={loading}
+              sx={{
+                mt: 1,
+                background: "linear-gradient(90deg, #a78bfa 60%, #b993d6 100%)",
+                fontWeight: "bold",
+                letterSpacing: 1,
+                fontSize: 18,
+                boxShadow: "0 2px 8px rgba(167,139,250,0.15)",
+                "&:hover": {
+                  background:
+                    "linear-gradient(90deg, #db2777 60%, #a78bfa 100%)",
+                },
+              }}
             >
-              {isSubmitting ? (
-                <>
-                  <CircularProgress size={24} color="inherit" sx={{ mr: 1.5 }} />
-                  Creating account...
-                </>
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
               ) : (
-                "Register"
+                "Sign Up"
               )}
             </Button>
-          </form>
-
-          <Typography variant="body2" mt={3} textAlign="center" color="text.secondary">
-            Already have an account?{" "}
-            <Link to="/login" style={{ textDecoration: "none", fontWeight: 500 }}>
-              Sign in
-            </Link>
+          </Stack>
+        </form>
+        {message && (
+          <Typography
+            variant="body2"
+            align="center"
+            mt={2}
+            color={message.includes("success") ? "success.main" : "error.main"}
+          >
+            {message}
           </Typography>
-        </Paper>
-      </motion.div>
+        )}
+        <Typography variant="body2" align="center" mt={2}>
+          Already have an account? <Link to="/login">Login</Link>
+        </Typography>
+      </Paper>
     </Box>
   );
 };
 
-export default RegistrationForm;
+export default Registeration;

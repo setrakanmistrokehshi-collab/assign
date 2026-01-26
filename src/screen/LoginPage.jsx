@@ -50,7 +50,7 @@ try {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        background: "linear-gradient(135deg, #1565c0, #42a5f5)",
+        background: "linear-gradient(135deg, #506781, #750f68)",
         backgroundRepeat: "no-repeat",
         backgroundSize: "cover",
         backgroundAttachment: "fixed",
