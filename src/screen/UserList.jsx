@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Delete } from "@mui/icons-material";
 
+
 const UsersList = () => {
   
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ const UsersList = () => {
     if (!confirm) return;
 
     try {
-        await axios.delete(`${import.meta.env.VITE_FRONTEND_URL}/api/auth/update/${_id}`)
+        await axios.delete(`${import.meta.env.VITE_API_URL}/delete/${_id}`)
 
     }catch (error) {
         console.error(error)
@@ -94,7 +95,7 @@ const UsersList = () => {
                 <TableRow key={user._id}>
                   <TableCell>{user._id}</TableCell>
                   <TableCell>
-                    {user.firstName} {user.lastName}
+                    {user.fullName} 
                   </TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell align="center">
@@ -119,7 +120,7 @@ const UsersList = () => {
                         variant="contained"
                         color="error"
                         size="small"
-                        onClick={() => deleteUser(user._nnnid)}
+                        onClick={() => deleteUser(user._id)}
                       >
                         Delete
                       </Button>

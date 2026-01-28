@@ -1,10 +1,17 @@
 import axios from "axios";
 
-const API = axios.create({
+const API = await axios.create({
   baseURL: import.meta.env.VITE_API_URL,
 });
 
 // Attach token automatically
+API.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    console.error('API error:', err.response?.data || err.message);
+    return Promise.reject(err);
+  }
+);
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem("token");
   if (token) {

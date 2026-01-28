@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
-import "./Auth.css";
+import "../screen/Auth.css";
 
 const Login = () => {
   const { login } = useContext(AuthContext);
@@ -34,6 +34,7 @@ const Login = () => {
       });
     } finally {
       setLoading(false);
+      window.location.href = "/";
     }
   };
 

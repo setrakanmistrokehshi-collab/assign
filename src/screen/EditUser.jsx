@@ -17,21 +17,22 @@ const EditUser = () => {
   const {id}= useParams()
 
 
-  const [firstName, setFirstName] =useState('')
-  const [lastName, setLastName] =useState('')
+  const [fullName, setFullName] =useState('')
   const [email, setEmail] =useState('')
   const [Loading, setLoading] =useState(false)
   const [error, setError] =useState(false)
 
   
-const payload ={firstName, lastName, email}
+const payload ={fullName, email}
 const handleEdit = async(event) => {
   event.preventDefault()
   setLoading(true)
   try {
-    const res = await
-    axios.put(`${import.meta.env.VITE_FRONTEND_URL}/api/auth/update${id}`,payload)
-  console.log(Response)
+    const API = await axios.put({
+  baseURL: import.meta.env.VITE_API_URL,
+  url: `/user/update/${id}`,
+  data: payload
+  });
   setLoading(false)
   navigate('/User')
 
@@ -80,21 +81,13 @@ const handleEdit = async(event) => {
         
         
           <TextField
-            label="First Name"
-            name="firstName"
+            label="Full Name"
+            name="fullName"
             fullWidth
             margin="normal"
-            value={firstName}
-            onChange={(event) => setFirstName(event.target.value)}
-          />
-          <TextField
-            label="Last Name"
-            name="lastName"
-            fullWidth
-            margin="normal"
-            value={lastName}
-            onChange={(event) => setLastName(event.target.value)}
-          />
+            value={fullName}
+            onChange={(event) => setFullName(event.target.value)}
+        />
           <TextField label="Email" 
           name="email" 
           fullWidth margin="normal"  value={email} 

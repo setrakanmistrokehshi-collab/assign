@@ -34,6 +34,7 @@ const Registeration= () => {
       setLoading(true);
       await registerUser(formData);
       alert("Registration successful");
+      window.location.href = "/login";
     } catch (err) {
       setErrors({
         api: err.response?.data?.message || "Registration failed",
