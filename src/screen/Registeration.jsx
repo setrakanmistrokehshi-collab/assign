@@ -1,400 +1,95 @@
 import { useState } from "react";
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Paper,
-  MenuItem,
-  InputAdornment,
-  IconButton,
-  Avatar,
-  CircularProgress,
-  Stack,
-} from "@mui/material";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import axios from "axios";
-import imageCompression from "browser-image-compression";
-import { Link, useNavigate } from "react-router-dom";
+import { registerUser } from "../api/authApi";
+import "./Auth.css";
 
-//const genders = ["Male", "Female"];
-//const maritalStatuses = ["Single", "Married", "Divorced", "Widowed"];
-//const relationshipTypes = [
-  //"friendship",
- // "dating",
- // "marriage",
- // "Online Dating ",
-  //"Males Friends ",
- // "Female friends ",
- // "Chat mate ",
- // "Friends with Benefits  ",
- // "Sex chat  ",
-  // "Gay",
-  // "Lasbian",
-  //"Sugar Daddy",
-  //"Sugar Mommy",
-  //"Casual Relationship",
-  //"Long-term Relationship",
-  //"Open Relationship",
-//];
-
-const Registeration = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({
+const Registeration= () => {
+  const [formData, setFormData] = useState({
     name: "",
-    //age: "",
-    //gender: "",
-   // location: "",
-    username: "",
     email: "",
     phoneNumber: "",
+    country: "",
+    state: "",
     password: "",
-    address: "",
   });
-  const [photoPreview, setPhotoPreview] = useState("");
-  const [photoFile, setPhotoFile] = useState(null);
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: "" });
   };
-
-  const handlePhotoChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    try {
-      const compressedFile = await imageCompression(file, {
-        maxSizeMB: 0.1,
-        maxWidthOrHeight: 300,
-        useWebWorker: true,
-      });
-      setPhotoFile(compressedFile);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhotoPreview(reader.result);
-      };
-      reader.readAsDataURL(compressedFile);
-    } catch (error) {
-      setMessage("Image compression failed. Please try another image.");
-    }
+  const validate = () => {
+    let temp = {};
+    if (!formData.name) temp.name = "Name is required";
+    if (!formData.email) temp.email = "Email is required";
+    if (!formData.password) temp.password = "Password is required";
+    setErrors(temp);
+    return Object.keys(temp).length === 0;
   };
-
-  const handleShowPassword = () => setShowPassword((show) => !show);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setMessage("");
-    // Check if photoFile is present
-    if (!photoFile) {
-      setLoading(false);
-      setMessage("Checkmate! Please upload a profile picture to continue.");
-      alert("Checkmate! Please upload a profile picture to continue.");
-      return;
-    }
+    if (!validate()) return;
     try {
-      const formData = new FormData();
-      Object.entries(form).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
-      formData.append("photo", photoFile);
-
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/register`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      if ((res.status === 201 || res.status === 200) && res.data.token) {
-        const userId = res.data.member?._id;
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("userId", userId);
-        localStorage.setItem("email", res.data.member?.email);
-        localStorage.setItem("username", res.data.member?.username || "");
-        setMessage("Registration successful! Redirecting...");
-        setForm({
-          name: "",
-         // age: "",
-          //gender: "",
-         // location: "",
-          //occupation: "",
-          //maritalStatus: "",
-         // relationshipType: "",
-          username: "",
-          email: "",
-          phoneNumber: "",
-          password: "",
-          address: "",
-        });
-        setPhotoPreview("");
-        setPhotoFile(null);
-        navigate(`/members/${userId}`, { replace: true });
-      } else {
-        setMessage(res.data.message || "Registration failed.");
-      }
+      setLoading(true);
+      await registerUser(formData);
+      alert("Registration successful");
     } catch (err) {
-      console.error("Registration error:", err);
-
-      let errorMsg =
-        (err.response?.data?.message &&
-        typeof err.response.data.message === "string"
-          ? err.response.data.message
-          : JSON.stringify(
-              err.response?.data?.message || err.response?.data || err.message
-            )) || "Network error. Please try again.";
-
-      setMessage(errorMsg);
+      setErrors({
+        api: err.response?.data?.message || "Registration failed",
+      });
+    } finally {
       setLoading(false);
     }
   };
-
   return (
-    <Box
-      minHeight="100vh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      sx={{
-        background: `
-      linear-gradient(135deg, red 0%, #a78bfa 50%, #green 100%)
-    `,
-        py: 6,
-        px: { xs: 1, sm: 2, md: 4 },
-      }}
-    >
-      <Paper
-        elevation={12}
-        sx={{
-          p: 4,
-          borderRadius: 5,
-          minWidth: 370,
-          maxWidth: 440,
-          opacity: 0.98,
-          background: "rgba(255,255,255,0.10)",
-          boxShadow: "0 8px 32px 0 rgba(31,38,135,0.25)",
-          backdropFilter: "blur(8px)",
-        }}
-      >
-        <Box display="flex" alignItems="center" justifyContent="center" mb={2}>
-          <FavoriteIcon sx={{ color: "#a78bfa", mr: 1, fontSize: 32 }} />
-          <Typography variant="h5" fontWeight="bold" color="#a78bfa">
-            Create Your Account
-          </Typography>
-        </Box>
-        {/* Signup Form */}
-        <form onSubmit={handleSubmit}>
-          <Stack spacing={2}>
-            <Box display="flex" flexDirection="column" alignItems="center">
-              <Avatar
-                src={photoPreview}
-                sx={{
-                  width: 72,
-                  height: 72,
-                  mb: 1,
-                  bgcolor: "#a78bfa",
-                  border: "3px solid #fff",
-                  boxShadow: "0 2px 8px #a78bfa",
-                }}
-              />
-              <Button
-                variant="outlined"
-                component="label"
-                sx={{
-                  mb: 1,
-                  borderColor: "#a78bfa",
-                  color: "#a78bfa",
-                  fontWeight: "bold",
-                  letterSpacing: 1,
-                }}
-              >
-                Upload Photo
-                <input
-                  type="file"
-                  accept="image/*"
-                  hidden
-                  onChange={handlePhotoChange}
-                />
-              </Button>
-            </Box>
-            {/* ...existing form fields... */}
-            <TextField
-              label="Name"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-            {/* <TextField
-              label="Age"
-              name="age"
-              type="number"
-              value={form.age}
-              onChange={handleChange}
-              fullWidth
-              required
-              inputProps={{ min: 18, max: 100 }}
-            />
-            <TextField
-              select
-              label="Gender"
-              name="gender"
-              value={form.gender}
-              onChange={handleChange}
-              fullWidth
-              required
-            >
-              {genders.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              label="Location"
-              name="location"
-              value={form.location}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-            <TextField
-              label="Occupation"
-              name="occupation"
-              value={form.occupation}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-            <TextField
-              label="Describe your kind of Man/Woman?"
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-            <TextField
-              select
-              label="Marital Status"
-              name="maritalStatus"
-              value={form.maritalStatus}
-              onChange={handleChange}
-              fullWidth
-              required
-            >
-              {maritalStatuses.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              select
-              label="Relationship Type"
-              name="relationshipType"
-              value={form.relationshipType}
-              onChange={handleChange}
-              fullWidth
-              required
-            >
-              {relationshipTypes.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField> */}
-            <TextField
-              label="Username"
-              name="username"
-              value={form.username}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-            <TextField
-              label="Email"
-              name="email"
-              type="email"
-              value={form.email}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-            <TextField
-              label="Phone Number"
-              name="phoneNumber"
-              value={form.phoneNumber}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-            <TextField
-              label="Password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              value={form.password}
-              onChange={handleChange}
-              fullWidth
-              required
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={handleShowPassword} edge="end">
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
+    <div className="auth-container">
+      <div className="auth-card">
+        <h2>Create Account</h2>
+        <p>Register to get started</p>
 
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              disabled={loading}
-              sx={{
-                mt: 1,
-                background: "linear-gradient(90deg, #a78bfa 60%, #b993d6 100%)",
-                fontWeight: "bold",
-                letterSpacing: 1,
-                fontSize: 18,
-                boxShadow: "0 2px 8px rgba(167,139,250,0.15)",
-                "&:hover": {
-                  background:
-                    "linear-gradient(90deg, #db2777 60%, #a78bfa 100%)",
-                },
-              }}
-            >
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Sign Up"
-              )}
-            </Button>
-          </Stack>
+        <form className="auth-form" onSubmit={handleSubmit}>
+          {errors.api && <span className="error-text">{errors.api}</span>}
+          <div className="input-group">
+            <input name="name" placeholder="Full Name" onChange={handleChange} />
+            {errors.name && <span className="error-text">{errors.name}</span>}
+          </div>
+          <div className="input-group">
+            <input name="email" placeholder="Email Address" onChange={handleChange} />
+            {errors.email && <span className="error-text">{errors.email}</span>}
+          </div>
+          <input name="phoneNumber" placeholder="Phone Number" onChange={handleChange} />
+          <input name="country" placeholder="Country" onChange={handleChange} />
+          <input name="state" placeholder="State" onChange={handleChange} />
+          <div className="input-group">
+            <div className="input-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                onChange={handleChange}
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+            {errors.password && <span className="error-text">{errors.password}</span>}
+          </div>
+
+          <button type="submit" disabled={loading}>
+            {loading ? <span className="spinner" /> : "Register"}
+          </button>
         </form>
-        {message && (
-          <Typography
-            variant="body2"
-            align="center"
-            mt={2}
-            color={message.includes("success") ? "success.main" : "error.main"}
-          >
-            {message}
-          </Typography>
-        )}
-        <Typography variant="body2" align="center" mt={2}>
-          Already have an account? <Link to="/login">Login</Link>
-        </Typography>
-      </Paper>
-    </Box>
+
+        <div className="auth-footer">
+          Already have an account? <a href="/login">Login</a>
+        </div>
+      </div>
+    </div>
   );
 };
 

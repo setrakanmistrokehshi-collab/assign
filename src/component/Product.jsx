@@ -49,9 +49,9 @@ export default function GetProduct() {
     setExpanded(!expanded);
   };
 
-  useEffect(() => {
+  useEffect(() => { 
     axios
-      .get(`${"https://classwork-backend-1.onrender.com"}/api/get`)
+      .get(`${"https://classwork-backend-1.onrender.com"}/get`)
       .then((res) => {
         setData(res.data.slice(0, 5));
       })

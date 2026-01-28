@@ -22,7 +22,7 @@ const UsersList = () => {
   const [Users, setUsers] = useState([])
   const [Loading, setLoading] = useState(true)
   const [Error, setError] = useState()
-  const api = (`${import.meta.env.VITE_FRONTEND_URL}/api/auth`)
+  const api = get(`${import.meta.env.VITE_API_URL}/get`)
 
   useEffect(() =>{
     const fetchUsers = async ( )=>{
