@@ -1,6 +1,7 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
 import "../screen/Auth.css";
+import img from "../assets/loginBackground-image.jpg";
 
 const Login = () => {
   const { login } = useContext(AuthContext);
@@ -39,11 +40,22 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
+    <div 
+      className="auth-container"
+      style={{
+        backgroundImage: `url(${img})`,  // Use imported image as background
+        backgroundSize: "cover",          // Cover the entire container
+        backgroundPosition: "center",     // Center the image
+        backgroundRepeat: "no-repeat",    // Prevent repeating
+      }}
+    >
+      
+      <div className="auth-card" style={{
+        backgroundColor:'rgba(16, 17, 15, 0.85)',  
+      }}>
         <h2>Welcome Back</h2>
         <p>Login to your account</p>
-
+        
         <form className="auth-form" onSubmit={handleSubmit}>
           {errors.api && <span className="error-text">{errors.api}</span>}
           <div className="input-group">

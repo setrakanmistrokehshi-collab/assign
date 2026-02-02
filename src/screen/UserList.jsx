@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+// UserList.jsx - Scalable version with React Query (caching, error handling, refetching)
+import React from "react";
 import {
   Table,
   TableBody,
@@ -11,135 +12,152 @@ import {
   Button,
   Stack,
   CircularProgress,
+  Alert,
+  Box,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getAllUsers, deleteUser } from "../api/authApi";  // Adjust path
 import { Delete } from "@mui/icons-material";
 
-
-const UsersList = () => {
-  
+const UserList = () => {
   const navigate = useNavigate();
-  const [Users, setUsers] = useState([])
-  const [Loading, setLoading] = useState(true)
-  const [Error, setError] = useState()
-  const api = get(`${import.meta.env.VITE_API_URL}/get`)
+  const queryClient = useQueryClient();
 
-  useEffect(() =>{
-    const fetchUsers = async ( )=>{
-        try { 
-            setLoading(true)
-            const res = await axios.get(api)
-            console.log(res.data)
-            setUsers(res.data)
-            setLoading(false)
-        }catch (error) {
-            console.error(error)
-            setError(error)
-            setLoading(false)
-        }
+  // Fetch users with React Query (built-in caching, staleTime, error handling)
+  const {
+    data: users = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["users"],  // Cache key
+    queryFn: getAllUsers,
+    staleTime: 1 * 60 * 1000,  // Cache for 5 minutes (adjust as needed)
+    cacheTime: 30 * 60 * 1000,  // Keep in cache for 30 minutes
+    refetchOnWindowFocus: false,  // Optional: Don't refetch on focus
+  });
+
+  // Delete mutation with optimistic update + invalidation
+  const deleteMutation = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => {
+      // Invalidate and refetch users list after delete
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (err) => {
+      alert(err.response?.data?.message || "Failed to delete user");
+    },
+  });
+
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      deleteMutation.mutate(id);
     }
-    fetchUsers()
+  };
 
-  },[] )
-
-  // {loading $$ <CircularProgress />}
-  if (Loading) return 
-   <CircularProgress size={100} color="white" thickness={4}  item/>
-
-      
-  const deleteUser = async (_id) =>{
-    const confirm = window.confirm('Are you sure you want to delete This user?')
-    if (!confirm) return;
-
-    try {
-        await axios.delete(`${import.meta.env.VITE_API_URL}/delete/${_id}`)
-
-    }catch (error) {
-        console.error(error)
-        alert('Failed to delete this User')
-    }
+  // Loading state (centered full screen)
+  if (isLoading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <CircularProgress size={80} thickness={5} />
+      </Box>
+    );
   }
 
- 
-  
+  // Error state
+  if (isError) {
+    return (
+      <Alert severity="error" sx={{ m: 4 }}>
+        {error?.response?.data?.message || error?.message || "Failed to load users. Please try again."}
+      </Alert>
+    );
+  }
 
   return (
-    <Paper sx={{ p: 3, mt: 4 }}>
-      <Typography variant="h5" gutterBottom fontWeight="bold">
-        All Registered Users
-      </Typography>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        backgroundColor: "#f5f5f5",  // Light background (or add image like login if desired)
+        py: 4,
+      }}
+    >
+      <Paper
+        elevation={6}
+        sx={{
+          maxWidth: 1200,
+          mx: "auto",
+          p: 4,
+          borderRadius: 3,
+          backgroundColor: "rgba(255, 255, 255, 0.95)",  // Semi-transparent white card (like login)
+        }}
+      >
+        <Typography variant="h4" gutterBottom fontWeight="bold" textAlign="center">
+          All Registered Users
+        </Typography>
 
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>
-                <b>ID</b>
-              </TableCell>
-              <TableCell>
-                <b>Name</b>
-              </TableCell>
-              <TableCell>
-                <b>Email</b>
-              </TableCell>
-              <TableCell align="center">
-                <b>Actions</b>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {Users.length > 0 ? (
-              Users.map((user) => (
-                <TableRow key={user._id}>
-                  <TableCell>{user._id}</TableCell>
-                  <TableCell>
-                    {user.fullName} 
-                  </TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell align="center">
-                    <Stack direction="row" spacing={1} justifyContent="center">
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        size="small"
-                        onClick={() => navigate(`/User/${user._id}`)}
-                      >
-                        View
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="success"
-                        size="small"
-                        onClick={() => navigate(`/User/edit/${user._id}`)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="error"
-                        size="small"
-                        onClick={() => deleteUser(user._id)}
-                      >
-                        Delete
-                      </Button>
-                    </Stack>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell><b>ID</b></TableCell>
+                <TableCell><b>Name</b></TableCell>
+                <TableCell><b>Email</b></TableCell>
+                <TableCell align="center"><b>Actions</b></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {users.length > 0 ? (
+                users.map((user) => (
+                  <TableRow key={user._id}>
+                    <TableCell>{user._id}</TableCell>
+                    <TableCell>{user.fullName || "N/A"}</TableCell>
+                    <TableCell>{user.email || "N/A"}</TableCell>
+                    <TableCell align="center">
+                      <Stack direction="row" spacing={1} justifyContent="center">
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          size="small"
+                          onClick={() => navigate(`/Users/${user._id}`)}
+                        >
+                          View
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="success"
+                          size="small"
+                          onClick={() => navigate(`/Users/edit/${user._id}`)}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="error"
+                          size="small"
+                          startIcon={<Delete />}
+                          onClick={() => handleDelete(user._id)}
+                          disabled={deleteMutation.isLoading}
+                        >
+                          {deleteMutation.isLoading ? "Deleting..." : "Delete"}
+                        </Button>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} align="center">
+                    No users found
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={4} align="center">
-                  No users found
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+    </Box>
   );
 };
 
-export default UsersList;
+export default UserList;

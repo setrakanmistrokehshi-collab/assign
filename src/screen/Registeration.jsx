@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { registerUser } from "../api/authApi";
 import "./Auth.css";
+import img from "../assets/registrationBackground_image.jpg";
 
-const Registeration= () => {
+const Registration = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -44,54 +45,77 @@ const Registeration= () => {
     }
   };
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>Create Account</h2>
-        <p>Register to get started</p>
+    <div 
+      className="background-container"
+      style={{
+        backgroundImage: `url(${img})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      
+      <div className="auth-container">
+      
+        <div className="auth-card" style={{
+          backgroundColor:'rgba(16, 17, 15, 0.85)',  
+        }}>
+          <h2>Create Account</h2>
+          <p>Register to get started</p>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
-          {errors.api && <span className="error-text">{errors.api}</span>}
-          <div className="input-group">
-            <input name="name" placeholder="Full Name" onChange={handleChange} />
-            {errors.name && <span className="error-text">{errors.name}</span>}
-          </div>
-          <div className="input-group">
-            <input name="email" placeholder="Email Address" onChange={handleChange} />
-            {errors.email && <span className="error-text">{errors.email}</span>}
-          </div>
-          <input name="phoneNumber" placeholder="Phone Number" onChange={handleChange} />
-          <input name="country" placeholder="Country" onChange={handleChange} />
-          <input name="state" placeholder="State" onChange={handleChange} />
-          <div className="input-group">
-            <div className="input-wrapper">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder="Password"
-                onChange={handleChange}
-              />
-              <button
-                type="button"
-                className="toggle-password"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
+          <form className="auth-form" onSubmit={handleSubmit}>
+            {errors.api && <span className="error-text">{errors.api}</span>}
+            <div className="input-group">
+              <input name="name" placeholder="Full Name" onChange={handleChange} />
+              {errors.name && <span className="error-text">{errors.name}</span>}
             </div>
-            {errors.password && <span className="error-text">{errors.password}</span>}
+            <div className="input-group">
+              <input name="email" placeholder="Email Address" onChange={handleChange} />
+              {errors.email && <span className="error-text">{errors.email}</span>}
+            </div>
+            <input name="phoneNumber" placeholder="Phone Number" onChange={handleChange} />
+            <input name="country" placeholder="Country" onChange={handleChange} />
+            <input name="state" placeholder="State" onChange={handleChange} />
+            <div className="input-group">
+              <div className="input-wrapper">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Password"
+                  onChange={handleChange}
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+              {errors.password && <span className="error-text">{errors.password}</span>}
+            </div>
+
+            <button 
+              type="submit" 
+              disabled={loading}
+              style={{
+                backgroundColor: "#1976d2",  // Custom background color (blue)
+                color: "white",               // White text for contrast
+                opacity: loading ? 0.7 : 1,   // Slight fade when disabled/loading
+              }}
+            >
+              {loading ? <span className="spinner" /> : "Register"}
+            </button>
+          </form>
+
+          <div className="auth-footer">
+            Already have an account? <a href="/login">Login</a>
           </div>
-
-          <button type="submit" disabled={loading}>
-            {loading ? <span className="spinner" /> : "Register"}
-          </button>
-        </form>
-
-        <div className="auth-footer">
-          Already have an account? <a href="/login">Login</a>
         </div>
       </div>
     </div>
+    
   );
 };
 
-export default Registeration;
+export default Registration;

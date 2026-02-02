@@ -28,7 +28,14 @@ export const registerUser = (formData) =>
 export const loginUser = (formData) =>
   API.post("/login", formData);
 
+
 // GET ALL USERS (protected)
 export const getAllUsers = () =>
   API.get("/");
 export default API;
+
+
+
+export const deleteUser =  (id) => 
+  API.delete("/"+id);
+export default deleteUser;
